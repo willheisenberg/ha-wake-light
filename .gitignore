@@ -1,0 +1,14 @@
+# Gradle und Android
+build/
+.gradle/
+local.properties
+*.apk
+*.aab
+
+# IDE
+.idea/
+*.iml
+.kotlin/
+
+# System
+.DS_Store

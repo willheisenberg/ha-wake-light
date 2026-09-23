@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Einfarbige Fassung für themenbezogene Symbole ab Android 13. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108"
+    android:tint="#FFFFFFFF">
+    <path android:pathData="M54,22 l0,-10" android:strokeColor="#FFFFFFFF" android:strokeWidth="4" android:strokeLineCap="round" />
+    <path android:pathData="M33,29 l-6,-8" android:strokeColor="#FFFFFFFF" android:strokeWidth="4" android:strokeLineCap="round" />
+    <path android:pathData="M75,29 l6,-8" android:strokeColor="#FFFFFFFF" android:strokeWidth="4" android:strokeLineCap="round" />
+    <path android:pathData="M22,46 l-9,-4" android:strokeColor="#FFFFFFFF" android:strokeWidth="4" android:strokeLineCap="round" />
+    <path android:pathData="M86,46 l9,-4" android:strokeColor="#FFFFFFFF" android:strokeWidth="4" android:strokeLineCap="round" />
+    <path android:pathData="M54,34 m-22,0 a22,22 0 1,0 44,0 a22,22 0 1,0 -44,0 Z" android:fillColor="#FFFFFFFF" />
+    <path android:pathData="M20,62 L88,62" android:strokeColor="#FFFFFFFF" android:strokeWidth="5" android:strokeLineCap="round" />
+    <path android:pathData="M28,74 L80,74" android:strokeColor="#FFFFFFFF" android:strokeWidth="4" android:strokeLineCap="round" />
+</vector>
