@@ -37,6 +37,10 @@
             android:exported="false" />
 
         <receiver
+            android:name=".timeline.TimelineReceiver"
+            android:exported="false" />
+
+        <receiver
             android:name=".alarm.SystemEventReceiver"
             android:exported="true">
             <intent-filter>

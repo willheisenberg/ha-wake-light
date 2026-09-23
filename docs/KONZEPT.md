@@ -15,6 +15,7 @@ Keine Abhängigkeit von Drittanbieter-Apps wie Sleep as Android.
 | Plattform | Native Android-App in Kotlin |
 | Timeline | Läuft in der App selbst, nicht als Home-Assistant-Automatisierung |
 | Testgerät | Sony Xperia 5 V |
+| Paket | `de.willheisenberg.hawakelight` |
 | Netzwerk | Nur Heim-WLAN, kein Zugriff von außen (kein VPN, kein Nabu Casa, kein Reverse Proxy) |
 | Alarm-Erkennung | Weckzeit im Voraus auslesen statt `ALARM_ALERT`-Broadcast abfangen (siehe Baustein 1) |
 
@@ -59,10 +60,10 @@ Die REST-API von Home Assistant reicht für alle Steuerbefehle aus.
 
 Feste Zeitpunkte mit Helligkeit und optional Farbe, ähnlich einem Sonnenaufgangs-/Sonnenuntergangs-Simulator.
 
-- **Datenmodell** (Room): `{uhrzeit, wochentage, entity_id, helligkeit, farbe?, übergangsdauer, aktiv}`
+- **Datenmodell:** `{uhrzeit, wochentage, entity_id, helligkeit, farbmodus, farbe/farbtemperatur, übergangsdauer, ausschalten, aktiv}`. Gespeichert als JSON in den Preferences statt in Room – für eine Handvoll Punkte ist eine Datenbank unnötiger Ballast.
 - **Scheduling:** Derselbe Mechanismus wie beim Wecker – immer nur der nächste fällige Eintrag bekommt einen exakten `AlarmManager`-Termin; beim Feuern wird der Call abgesetzt und der nächste Eintrag geplant. `WorkManager` ist ungeeignet, weil er keine exakten Uhrzeiten garantiert.
 - **Neu planen** bei `BOOT_COMPLETED`, `TIME_SET` und `TIMEZONE_CHANGED`.
-- **UI:** Einfacher Editor mit Zeitstrahl zum Hinzufügen, Verschieben und Löschen von Einträgen.
+- **UI:** Liste der Punkte mit Farbvorschau, dazu ein Dialog zum Anlegen, Ändern und Löschen – mit Uhrzeit, Wochentagen, Farbkreis oder Weißton, Helligkeit, Übergangsdauer und der Möglichkeit, das Licht auszuschalten.
 
 ## Architektur
 
@@ -72,7 +73,7 @@ Feste Zeitpunkte mit Helligkeit und optional Farbe, ähnlich einem Sonnenaufgang
 | Weckzeit-Erkennung | `getNextAlarmClock()` + Receiver für `ACTION_NEXT_ALARM_CLOCK_CHANGED` |
 | Scheduling | `AlarmManager.setExactAndAllowWhileIdle()`, Berechtigung `SCHEDULE_EXACT_ALARM` |
 | HA-Anbindung | REST-Client (OkHttp/Retrofit), Token verschlüsselt gespeichert |
-| Persistenz | Room für Timeline-Einträge, DataStore für Einstellungen |
+| Persistenz | JSON in SharedPreferences für den Lichtplan, verschlüsselte Preferences für Token und Einstellungen |
 
 Modularer Aufbau, jedes Modul einzeln testbar:
 

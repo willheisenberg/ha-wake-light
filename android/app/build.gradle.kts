@@ -6,12 +6,12 @@ plugins {
 }
 
 android {
-    namespace = "de.hawakelight.app"
+    namespace = "de.willheisenberg.hawakelight"
     compileSdk = 36
     buildToolsVersion = "37.0.0"
 
     defaultConfig {
-        applicationId = "de.hawakelight.app"
+        applicationId = "de.willheisenberg.hawakelight"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
