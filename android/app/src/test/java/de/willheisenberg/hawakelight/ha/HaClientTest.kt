@@ -113,6 +113,29 @@ class HaClientTest {
     }
 
     @Test
+    fun `leere Adresse stuerzt nicht ab sondern meldet den Fehler`() = runTest {
+        val leer = HaClient("", "geheim")
+
+        listOf(
+            leer.ping(),
+            leer.state("light.danszimmer"),
+            leer.turnOn("light.danszimmer", brightnessPct = 100, transitionSeconds = 0),
+            leer.turnOff("light.danszimmer"),
+        ).forEach { result ->
+            assertTrue(result.isFailure)
+            assertTrue(result.exceptionOrNull() is HaException)
+        }
+    }
+
+    @Test
+    fun `Adresse ohne http wird bemaengelt`() = runTest {
+        val result = HaClient("192.168.178.192:8123", "geheim").ping()
+
+        assertTrue(result.isFailure)
+        assertTrue(result.exceptionOrNull()!!.message!!.contains("http"))
+    }
+
+    @Test
     fun `Aufruf wird nach einem Netzfehler wiederholt`() = runTest {
         server.enqueue(MockResponse().setResponseCode(503))
         server.enqueue(MockResponse().setBody("[]"))

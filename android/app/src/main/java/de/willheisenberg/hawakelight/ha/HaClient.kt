@@ -41,10 +41,10 @@ class HaClient(
 ) {
     private val base = baseUrl.trim().trimEnd('/')
 
-    suspend fun ping(): Result<Unit> = request(Request.Builder().url("$base/api/")).map { }
+    suspend fun ping(): Result<Unit> = request { Request.Builder().url("$base/api/") }.map { }
 
     suspend fun lights(): Result<List<HaEntity>> =
-        request(Request.Builder().url("$base/api/states")).mapCatching { body ->
+        request { Request.Builder().url("$base/api/states") }.mapCatching { body ->
             json.parseToJsonElement(body).let { it as JsonArray }
                 .map { it.jsonObject }
                 .filter { it.string("entity_id")?.startsWith("light.") == true }
@@ -64,10 +64,9 @@ class HaClient(
 
     /** Prüft, ob es die Entität gibt, und liefert ihren Zustand. */
     suspend fun state(entityId: String): Result<HaEntity> =
-        request(
-            builder = Request.Builder().url("$base/api/states/$entityId"),
-            notFoundMessage = "Entität $entityId gibt es in Home Assistant nicht",
-        ).mapCatching { body ->
+        request(notFoundMessage = "Entität $entityId gibt es in Home Assistant nicht") {
+            Request.Builder().url("$base/api/states/$entityId")
+        }.mapCatching { body ->
             val entity = json.parseToJsonElement(body).jsonObject
             val attributes = entity["attributes"]?.jsonObject
             HaEntity(
@@ -101,11 +100,11 @@ class HaClient(
                 put("color_temp_kelvin", colorTempKelvin)
             }
         }
-        return request(
+        return request {
             Request.Builder()
                 .url("$base/api/services/light/turn_on")
-                .post(payload.toString().toRequestBody(jsonMediaType)),
-        ).map { }
+                .post(payload.toString().toRequestBody(jsonMediaType))
+        }.map { }
     }
 
     /** Schaltet das Licht aus, optional mit Übergang. */
@@ -114,19 +113,22 @@ class HaClient(
             put("entity_id", entityId)
             if (transitionSeconds > 0) put("transition", transitionSeconds)
         }
-        return request(
+        return request {
             Request.Builder()
                 .url("$base/api/services/light/turn_off")
-                .post(payload.toString().toRequestBody(jsonMediaType)),
-        ).map { }
+                .post(payload.toString().toRequestBody(jsonMediaType))
+        }.map { }
     }
 
     private suspend fun request(
-        builder: Request.Builder,
         notFoundMessage: String? = null,
+        buildRequest: () -> Request.Builder,
     ): Result<String> = withContext(Dispatchers.IO) {
+        checkAddress()?.let { return@withContext Result.failure(it) }
         try {
-            val request = builder.header("Authorization", "Bearer $token").build()
+            // Der Request wird bewusst hier gebaut: Eine unbrauchbare Adresse soll einen
+            // Fehler liefern und nicht die App abschießen.
+            val request = buildRequest().header("Authorization", "Bearer $token").build()
             http.newCall(request).execute().use { response ->
                 if (response.isSuccessful) {
                     Result.success(response.body?.string().orEmpty())
@@ -139,6 +141,14 @@ class HaClient(
         } catch (e: Exception) {
             Result.failure(HaException("Home Assistant nicht erreichbar: ${e.message}", e))
         }
+    }
+
+    /** Prüft die Adresse, bevor irgendetwas gebaut wird. */
+    private fun checkAddress(): HaException? = when {
+        base.isEmpty() -> HaException("Trage zuerst die Home-Assistant-URL ein")
+        !base.startsWith("http://") && !base.startsWith("https://") ->
+            HaException("Die Adresse muss mit http:// oder https:// beginnen")
+        else -> null
     }
 
     private fun describe(response: Response, notFoundMessage: String?): String = when (response.code) {
